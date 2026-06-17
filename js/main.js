@@ -93,32 +93,27 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 }); 
-/* ========================================
-     5. COMPTEURS ANIMÉS AU SCROLL
-     ======================================== */
 
-  // On récupère tous les éléments qui ont la classe "counter"
+
   const compteurs = document.querySelectorAll('.counter');
 
-  // Fonction qui anime un compteur de 0 jusqu'à sa valeur cible
   function animerCompteur(element) {
-    // On récupère la valeur cible depuis l'attribut data-target
+
     const cible = parseInt(element.getAttribute('data-target'));
     let valeurActuelle = 0;
 
-    // On calcule l'incrément pour que l'animation dure environ 2 secondes
+
     const increment = cible / 100;
 
     function mettreAJour() {
       valeurActuelle += increment;
 
       if (valeurActuelle < cible) {
-        // On affiche la valeur arrondie
+
         element.textContent = Math.ceil(valeurActuelle);
-        // On répète l'animation à la prochaine frame
+      
         requestAnimationFrame(mettreAJour);
       } else {
-        // On affiche la valeur finale exacte
         element.textContent = cible;
       }
     }
@@ -126,48 +121,195 @@ document.addEventListener('DOMContentLoaded', function () {
     mettreAJour();
   }
 
-  // IntersectionObserver : détecte quand un élément entre dans l'écran
   const observerCompteurs = new IntersectionObserver(function (entrees) {
     entrees.forEach(function (entree) {
-      // Si l'élément est visible à l'écran
       if (entree.isIntersecting) {
         animerCompteur(entree.target);
-        // On arrête d'observer cet élément (l'animation ne se joue qu'une fois)
+      
         observerCompteurs.unobserve(entree.target);
       }
     });
   }, {
-    threshold: 0.5 // L'animation se déclenche quand 50% de l'élément est visible
+    threshold: 0.5 
   });
 
-  // On observe chaque compteur
   compteurs.forEach(function (compteur) {
     observerCompteurs.observe(compteur);
   });
 
 
-  /* ========================================
-     6. ANIMATION FADE-IN AU SCROLL
-     ======================================== */
-
-  // On récupère toutes les sections qui doivent apparaître en fondu
   const elementsFadeIn = document.querySelectorAll('.fade-in');
 
-  // IntersectionObserver pour le fade-in
   const observerFadeIn = new IntersectionObserver(function (entrees) {
     entrees.forEach(function (entree) {
       if (entree.isIntersecting) {
-        // On ajoute la classe "visible" qui déclenche la transition CSS
         entree.target.classList.add('visible');
-        // On arrête d'observer (l'animation ne se joue qu'une fois)
         observerFadeIn.unobserve(entree.target);
       }
     });
   }, {
-    threshold: 0.2 // Se déclenche quand 20% de l'élément est visible
+    threshold: 0.2 
   });
 
-  // On observe chaque élément
   elementsFadeIn.forEach(function (element) {
     observerFadeIn.observe(element);
-  });
+  })
+
+  const boutonsFiltre = document.querySelectorAll('.btn-filter');
+  const cartesFreelance = document.querySelectorAll('.freelance-card');
+
+  if (boutonsFiltre.length > 0) {
+
+    boutonsFiltre.forEach(function (bouton) {
+      bouton.addEventListener('click', function () {
+
+        
+        boutonsFiltre.forEach(function (b) {
+          b.classList.remove('active');
+        });
+
+      
+        this.classList.add('active');
+
+      
+        const categorieChoisie = this.getAttribute('data-categorie');
+
+        
+        cartesFreelance.forEach(function (carte) {
+          const categorieFreelance = carte.getAttribute('data-categorie');
+
+          if (categorieChoisie === 'tous') {
+            
+            carte.style.display = 'block';
+          } else if (categorieFreelance === categorieChoisie) {
+        
+            carte.style.display = 'block';
+          } else {
+          
+            carte.style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+
+  const formulaire = document.getElementById('contactForm');
+
+  if (formulaire) {
+
+    function afficherErreur(idErreur, message) {
+      const erreur = document.getElementById(idErreur);
+      if (erreur) {
+        erreur.textContent = message;
+      }
+    }
+
+    
+    function effacerErreur(idErreur) {
+      const erreur = document.getElementById(idErreur);
+      if (erreur) {
+        erreur.textContent = '';
+      }
+    }
+
+  
+    function champValide(champ) {
+      champ.classList.remove('is-invalid');
+      champ.classList.add('is-valid');
+    }
+
+    
+    function champInvalide(champ) {
+      champ.classList.remove('is-valid');
+      champ.classList.add('is-invalid');
+    }
+
+  
+    formulaire.addEventListener('submit', function (e) {
+    
+      e.preventDefault();
+
+      
+      const nom = document.getElementById('nom');
+      const prenom = document.getElementById('prenom');
+      const email = document.getElementById('email');
+      const sujet = document.getElementById('sujet');
+      const message = document.getElementById('message');
+      const successMessage = document.getElementById('success-message');
+
+      
+      let estValide = true;
+
+    
+      if (nom.value.trim() === '') {
+        afficherErreur('error-nom', 'Le nom est obligatoire.');
+        champInvalide(nom);
+        estValide = false;
+      } else {
+        effacerErreur('error-nom');
+        champValide(nom);
+      }
+
+      
+      if (prenom.value.trim() === '') {
+        afficherErreur('error-prenom', 'Le prénom est obligatoire.');
+        champInvalide(prenom);
+        estValide = false;
+      } else {
+        effacerErreur('error-prenom');
+        champValide(prenom);
+      }
+
+      
+      const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (email.value.trim() === '') {
+        afficherErreur('error-email', 'L\'email est obligatoire.');
+        champInvalide(email);
+        estValide = false;
+      } else if (!regexEmail.test(email.value.trim())) {
+        afficherErreur('error-email', 'Format d\'email invalide (ex: nom@email.com).');
+        champInvalide(email);
+        estValide = false;
+      } else {
+        effacerErreur('error-email');
+        champValide(email);
+      }
+
+    
+      if (sujet.value === '') {
+        afficherErreur('error-sujet', 'Veuillez choisir un sujet.');
+        champInvalide(sujet);
+        estValide = false;
+      } else {
+        effacerErreur('error-sujet');
+        champValide(sujet);
+      }
+
+    
+      if (message.value.trim() === '') {
+        afficherErreur('error-message', 'Le message est obligatoire.');
+        champInvalide(message);
+        estValide = false;
+      } else if (message.value.trim().length < 20) {
+        afficherErreur('error-message', 
+          'Le message doit contenir au moins 20 caractères. ' +
+          '(Actuel : ' + message.value.trim().length + ' caractères)');
+        champInvalide(message);
+        estValide = false;
+      } else {
+        effacerErreur('error-message');
+        champValide(message);
+      }
+
+      
+      if (estValide) {
+      
+        formulaire.style.display = 'none';
+      
+        successMessage.style.display = 'block';
+    
+        formulaire.reset();
+      }
+    });
+  }
