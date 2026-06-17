@@ -313,3 +313,108 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+  document.addEventListener("DOMContentLoaded", () => {
+    initFreelanceFilters();
+    initContactValidation();
+});
+
+function initFreelanceFilters() {
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const freelanceCards = document.querySelectorAll(".freelance-card");
+
+    if (!filterButtons.length || !freelanceCards.length) return;
+
+    filterButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const currentActive = document.querySelector(".filter-btn.active");
+            if (currentActive) currentActive.classList.remove("active");
+            button.classList.add("active");
+
+            const targetCategory = button.getAttribute("data-category");
+
+            freelanceCards.forEach(card => {
+                const cardCategory = card.getAttribute("data-category");
+
+                if (targetCategory === "all" || targetCategory === cardCategory) {
+                    card.style.display = "block";
+                    setTimeout(() => {
+                        card.style.opacity = "1";
+                        card.style.transform = "scale(1)";
+                        card.style.transition = "all 0.4s ease";
+                    }, 10);
+                } else {
+                    card.style.opacity = "0";
+                    card.style.transform = "scale(0.95)";
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+}
+
+function initContactValidation() {
+    const contactForm = document.getElementById("contactForm");
+
+    if (!contactForm) return;
+
+    contactForm.addEventListener("submit", (event) => {
+        let isFormValid = true;
+
+        const nom = document.getElementById("nom");
+        const email = document.getElementById("email");
+        const sujet = document.getElementById("sujet");
+        const message = document.getElementById("message");
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        resetFormErrors();
+
+        if (!nom.value.trim()) {
+            setFieldError(nom, "Le nom et le prénom sont obligatoires.");
+            isFormValid = false;
+        }
+
+        if (!email.value.trim()) {
+            setFieldError(email, "L'adresse email est obligatoire.");
+            isFormValid = false;
+        } else if (!emailPattern.test(email.value.trim())) {
+            setFieldError(email, "Veuillez entrer un format d'email valide (ex: nom@email.com).");
+            isFormValid = false;
+        }
+
+        if (!sujet.value) {
+            setFieldError(sujet, "Veuillez sélectionner l'objet de votre message.");
+            isFormValid = false;
+        }
+
+        if (message.value.trim().length < 20) {
+            setFieldError(message, "Votre message est trop court (20 caractères minimum requis).");
+            isFormValid = false;
+        }
+
+        if (!isFormValid) {
+            event.preventDefault();
+        } else {
+            alert("Félicitations ! Votre message a été validé et envoyé avec succès.");
+        }
+    });
+}
+
+function setFieldError(inputElement, message) {
+    inputElement.classList.add("is-invalid");
+    const errorSpan = document.getElementById(`${inputElement.id}-error`);
+    if (errorSpan) {
+        errorSpan.textContent = message;
+        errorSpan.style.display = "block";
+    }
+}
+
+function resetFormErrors() {
+    document.querySelectorAll(".error-message").forEach(span => {
+        span.textContent = "";
+        span.style.display = "none";
+    });
+    document.querySelectorAll("input, textarea, select").forEach(input => {
+        input.classList.remove("is-invalid");
+    });
+}
